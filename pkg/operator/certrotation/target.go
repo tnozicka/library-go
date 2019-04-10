@@ -53,15 +53,17 @@ func (c TargetRotation) ensureTargetCertKeyPair(signingCertKeyPair *crypto.CA, c
 	// validity percentage.  We always check to see if we need to sign.  Often we are signing with an old key or we have no target
 	// and need to mint one
 	// TODO do the cross signing thing, but this shows the API consumers want and a very simple impl.
+	var targetCertKeyPairSecret *corev1.Secret
 	originalTargetCertKeyPairSecret, err := c.Lister.Secrets(c.Namespace).Get(c.Name)
-	if err != nil && !apierrors.IsNotFound(err) {
-		return err
-	}
-	targetCertKeyPairSecret := originalTargetCertKeyPairSecret.DeepCopy()
 	if apierrors.IsNotFound(err) {
 		// create an empty one
 		targetCertKeyPairSecret = &corev1.Secret{ObjectMeta: metav1.ObjectMeta{Namespace: c.Namespace, Name: c.Name}}
+	} else if err != nil {
+		return err
+	} else {
+		targetCertKeyPairSecret = originalTargetCertKeyPairSecret.DeepCopy()
 	}
+
 	targetCertKeyPairSecret.Type = corev1.SecretTypeTLS
 
 	if reason := needNewTargetCertKeyPair(targetCertKeyPairSecret.Annotations, signingCertKeyPair, caBundleCerts, c.Refresh); len(reason) > 0 {
