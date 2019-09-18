@@ -53,10 +53,12 @@ test-rpm:
 .PHONY: test-rpm
 
 test-codegen:
-	$(MAKE) update-codegen
-	$(MAKE) verify-codegen
-	./_output/tools/bin/yq m -i manifests/operator.openshift.io_myoperatorresources.crd.yaml manifest.test.crd.yaml-merge-patch
-	-$(MAKE) verify-codegen 2>/dev/null
-	$(MAKE) update-codegen
-	$(MAKE) verify-codegen
+	cp -r ./testing/manifests/initial/* ./manifests/
+	diff -Naup ./testing/manifests/initial/ ./manifests/
+	! $(MAKE) verify-codegen-crds
+
+	$(MAKE) update-codegen-crds
+	$(MAKE) verify-codegen-crds
+	! diff -Naup ./testing/manifests/initial/ ./manifests/ 2>/dev/null
+	diff -Naup ./testing/manifests/updated/ ./manifests/ 2>/dev/null
 .PHONY: test-codegen

@@ -9,11 +9,6 @@ spec:
     kind: MyOperatorResource
     plural: myoperatorresources
   scope: ""
-  validation:
-    openAPIV3Schema:
-      properties:
-        apiVersion:
-          pattern: ^(test|TEST)$
 status:
   acceptedNames:
     kind: ""
